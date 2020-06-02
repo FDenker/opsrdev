@@ -17,7 +17,9 @@ ops_auth <- function(key, secret){
     auth_enc <- base64(code, TRUE, "character")
     heads <- c(auth_enc, "application/x-www-form-urlencoded")
     names(heads) <- c("Authorization", "content-type")
-    auth <- httr::POST(url = "https://ops.epo.org/3.1/auth/accesstoken", httr::add_headers(heads),
+    auth <- httr::POST(url = "https://ops.epo.org/3.2/auth/accesstoken", httr::add_headers(heads),
     body = "grant_type=client_credentials")
+    content_auth <- content(auth, encoding = "UTF-8")
     print(auth$status)
+    return(content_auth$access_token)
 }
