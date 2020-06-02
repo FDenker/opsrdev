@@ -18,6 +18,7 @@
 #' @importFrom httr accept
 #' @importFrom httr content
 ops_count <- function(query = "", type = "NULL", start = NULL, end = NULL, key = key, secret = secret) {
+  # Generate access token and create header
   access_token <- ops_auth(key = key, secret = secret)
   head_post <- c(paste("Bearer", access_token ),"application/json", "text/plain")
   names(head_post) <- c("Authorization", "Accept", "Content-Type" )

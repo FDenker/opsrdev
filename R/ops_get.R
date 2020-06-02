@@ -8,8 +8,12 @@
 #' @importFrom httr content
 #' @export
 #' @examples \dontrun{lapply(three_urls, ops_get)}
-ops_get <- function(url){
-  myquery <- httr::GET(paste0(url), httr::content_type("plain/text"), httr::accept("application/json"))
+ops_get <- function(url, key, secret){
+  # Generate access token and create header
+  access_token <- ops_auth(key = key, secret = secret)
+  head_post <- c(paste("Bearer", access_token ),"application/json", "text/plain")
+  names(head_post) <- c("Authorization", "Accept", "Content-Type" )
+  myquery <- httr::GET(paste0(url), httr::add_headers(head_post))
   content <- httr::content(myquery) #required or raw return
   # results <- content$`ops:world-patent-data`$`ops:biblio-search`$`ops:search-result`$`ops:publication-reference`
 
