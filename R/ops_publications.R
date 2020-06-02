@@ -4,12 +4,21 @@
 #' @param type character, ti (title), ta (title & abstract), biblio (default).
 #' @param start - YYYY or YYYYMMDD, publication date.
 #' @param end - YYYY or YYYYMMDD, publication date.
+#' @param key Alphanumeric provided by OPS (quoted).
+#' @param secret Alphanumeric secret provided by OPS (quoted).
 #' @details The basic workflow for OPS is to perform a text query, retrieve patent numbers and then gather other information (biblios, family data etc.). This function combines ops_urls, ops_count, ops_iterate, ops_numbers and ops_country in one function.
 #' @return A data.frame of patent numbers.
 #' @export
 #' @examples \dontrun{more_pizza <- ops_publications(query = "pizza", type = "ta", start = 1990, end = 2000)}
-ops_publications <- function(query="", type = "NULL", start = NULL, end = NULL) {
-  published_url <- "http://ops.epo.org/3.1/rest-services/published-data/search?q="
+ops_publications <- function(query="", type = "NULL", start = NULL, end = NULL, key, secret) {
+
+  # Generate access token and create header
+
+  access_token <- ops_auth(key = key, secret = secret)
+  head_post <- c(paste("Bearer", access_token ),"application/json", "text/plain")
+  names(head_post) <- c("Authorization", "Accept", "Content-Type" )
+
+  published_url <- "http://ops.epo.org/3.2/rest-services/published-data/search?q="
   if(type == "ti") {
     query <- paste0("ti", "%3D", query)
   }
@@ -25,14 +34,14 @@ ops_publications <- function(query="", type = "NULL", start = NULL, end = NULL) 
   if(is.numeric(start) | is.numeric(end)) {
     within <- " and pd within " # note spaces
     dates <- paste0("%22", start, "%20", end, "%22")
-    myquery <- httr::GET(paste0(published_url, query, RCurl::curlEscape(within), dates), httr::content_type("plain/text"), httr::accept("application/json"))
+    myquery <- httr::GET(paste0(published_url, query, RCurl::curlEscape(within), dates), httr::add_headers(head_post))
     content <- httr::content(myquery)
     # produces a list to here so it is working
     # insert ops_numbers_ here as internal function
   }
 # cases where no year range is specified.
   if(is.null(start) | is.null(end)){
-    myquery <- httr::GET(paste0(published_url, query), httr::content_type("plain/text"), httr::accept("application/json"))
+    myquery <- httr::GET(paste0(published_url, query), httr::add_headers(head_post))
     content <- httr::content(myquery)
     #default of 25 results as a list
     # insert ops_numbers_ here as internal function

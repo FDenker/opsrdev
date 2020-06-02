@@ -12,11 +12,19 @@
 #'
 #' @export
 #' @examples \dontrun{urls <- ops_urls(query = "pizza", type = "ti", start = 1990, end = 2000)}
-ops_urls <- function(query="", type = "NULL", start = NULL, end = NULL) {
+ops_urls <- function(query="", type = "NULL", start = NULL, end = NULL, key, secret) {
+  # Generate access token and create header
+
+  access_token <- ops_auth(key = key, secret = secret)
+  head_post <- c(paste("Bearer", access_token ),"application/json", "text/plain")
+  names(head_post) <- c("Authorization", "Accept", "Content-Type" )
+
+
   # should be able just to call ops_count here and nest it rather than repeat it
   # see ops_testing_urls in the ignore folder for the actual development version
   # ops_count(query = query, type = type, start = start, end = end)
-  baseurl <- "http://ops.epo.org/3.1/rest-services/published-data/search/biblio/?q="
+
+  baseurl <- "http://ops.epo.org/3.2/rest-services/published-data/search/biblio/?q="
   if(type == "ti") {
     query <- paste0("ti", "%3D", query)
   }
@@ -32,13 +40,13 @@ ops_urls <- function(query="", type = "NULL", start = NULL, end = NULL) {
   if(is.numeric(start) | is.numeric(end)) {
     within <- " and pd within " # note spaces
     dates <- paste0("%22", start, "%20", end, "%22") # neater solution?
-    myquery <- httr::GET(paste0(baseurl, query, RCurl::curlEscape(within), dates), httr::content_type("plain/text"), httr::accept("application/json"))
+    myquery <- httr::GET(paste0(baseurl, query, RCurl::curlEscape(within), dates), httr::add_headers(head_post))
     content <- httr::content(myquery)
     qtotal <- content$`ops:world-patent-data`$`ops:biblio-search`[[1]]
     qtotal <- as.numeric(qtotal)
     print(qtotal)
   } else {
-    myquery <- httr::GET(paste0(baseurl, query), httr::content_type("plain/text"), httr::accept("application/json"))
+    myquery <- httr::GET(paste0(baseurl, query), httr::add_headers(head_post))
     content <- httr::content(myquery)
     qtotal <- content$`ops:world-patent-data`$`ops:biblio-search`[[1]]
     qtotal <- as.numeric(qtotal)

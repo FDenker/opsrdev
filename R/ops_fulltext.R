@@ -22,15 +22,23 @@
 #' @examples \dontrun{ops_fulltext("WO0000034", type = "fulltext", timer = 20)}
 #' @examples \dontrun{ops_fulltext("WO0000034", type = "description", timer = 20)}
 #' @examples \dontrun{ops_fulltext("WO0000034", type = "claims", timer = 20)}
-ops_fulltext <- function(query = "", type = "", timer = 30){
+ops_fulltext <- function(query = "", type = "", timer = 30, key, secret){
   # call ops_filter first to search only relevant names
   # --- ops_filter call
   #ops_filter <- function(x)
   #x <- dplyr::filter(x, publication_country == "EP" | publication_country == "WO" | publication_country == "AT" | publicati#on_country == "CA" | publication_country == "CH" | publication_country == "GB" | publication_country == "ES")
   #
   # --- end ops filter call
+
+  # Generate access token and create header
+
+  access_token <- ops_auth(key = key, secret = secret)
+  head_post <- c(paste("Bearer", access_token ),"application/json", "text/plain")
+  names(head_post) <- c("Authorization", "Accept", "Content-Type" )
+
   # Generate URLS
-  baseurl <- "http://ops.epo.org/3.1/rest-services/published-data/publication/epodoc/"
+
+  baseurl <- "http://ops.epo.org/3.2/rest-services/published-data/publication/epodoc/"
   query <- query # vector of numbers to get ft, description or claims for.
   if(type == "fulltext"){
     url <- paste0(baseurl, query, "/fulltext")
@@ -48,7 +56,7 @@ ops_fulltext <- function(query = "", type = "", timer = 30){
   #
   #} # needs an if else statement and then positioning
   if(length(query) == 1){
-    myquery <- httr::GET(paste0(url), httr::content_type("plain/text"), httr::accept("application/json"))
+    myquery <- httr::GET(paste0(url), httr::add_headers(head_post))
   }
   myquery <- httr::content(myquery)
 

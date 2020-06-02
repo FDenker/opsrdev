@@ -13,6 +13,11 @@
 #' @importFrom httr POST
 #' @examples \dontrun{x <- more_pizza$epodoc}
 #' @examples \dontrun{biblios <- ops_post(x)}
-ops_post <- function(x){
-  POST("http://ops.epo.org/3.1/rest-services/published-data/publication/epodoc/biblio", content_type("plain/text"), accept("application/json"), body = x)
+ops_post <- function(x, key, secret){
+  access_token <- ops_auth(key = key, secret = secret)
+  head_post <- c(paste("Bearer", access_token ),"application/json", "text/plain")
+  names(head_post) <- c("Authorization", "Accept", "Content-Type" )
+  POST("http://ops.epo.org/3.2/rest-services/published-data/publication/epodoc/biblio", add_headers(head_post), body = x)
+
 }
+

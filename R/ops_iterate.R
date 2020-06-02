@@ -14,20 +14,20 @@
 #'ft <- iterate(pub_number, type = "claims")}
 #' @examples \dontrun{pizza_numbers <- ops_iterate(pizza[[1]], service = "numbers")} # note that select first item in list
 #' @examples \dontrun {three <- ops_iterate(three_urls, service = "numbers")}
-ops_iterate <- function(data, service = "", type = NULL, timer = 20){
+ops_iterate <- function(data, service = "", type = NULL, timer = 20, key, secret){
   if(service == "numbers"){
-  out <- pbapply::pblapply(data, ops_get)
+  out <- pbapply::pblapply(data, ops_get, key = key, secret = secret)
   Sys.sleep(timer) #look at pboptions
   return(out)
   }
   if(service == "biblio"){
-  out <- pbapply::pblapply(data, ops_get)
+  out <- pbapply::pblapply(data, ops_get, key = key, secret = secret)
   Sys.sleep(timer)
   return(out)
   }
   if(service == "claims"){
   #revised version of ops_filter() based on country/instrument code
-  out <- pbapply::pblapply(data, ops_get)
+  out <- pbapply::pblapply(data, ops_get, key = key, secret = secret)
   Sys.sleep(timer)
   }
   #if(service == "description"){
@@ -36,11 +36,12 @@ ops_iterate <- function(data, service = "", type = NULL, timer = 20){
   # Sys.sleep(timer)
   # }
   if(service == "fulltext"){
-    out <- pbapply::pblapply(data, ops_fulltext, type = type)
+    out <- pbapply::pblapply(data, ops_fulltext, type = type, key = key, secret = secret)
     Sys.sleep(timer)
     return(out)
     }
 }
+
 
 #maybe try the iterators package
 # This works fine with the claims. Note that it takes ops_fulltext as its function. So, it enters a pub number, runs ops_fulltext on that number and returns the results.

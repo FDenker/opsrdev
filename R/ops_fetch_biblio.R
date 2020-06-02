@@ -6,13 +6,15 @@
 #' @param start The year or date to start with.
 #' @param end The year or date to end with.
 #' @param timer The number of seconds between each call for 100 results (numeric)
+#' @param key Alphanumeric provided by OPS (quoted).
+#' @param secret Alphanumeric secret provided by OPS (quoted).
 #' @details A warning may be generated that "There were 50 or more warnings...". This is expected behaviour and arises from the use of aggregate() in ops_biblio inside this function.
 #' @return A data frame
 #' @export
 #' @importFrom dplyr %>%
-#' @examples \dontrun{drones <- ops_fetch_biblio(query = "drones", type = "ta", service = "biblio", start = 1990, end = 2015, timer = 10)}
-ops_fetch_biblio <- function(query, type, service, start, end, timer){
-  ops_urls(query, type, start, end) %>%
-    ops_iterate(service, timer) %>%
-    ops_biblio()
+#' @examples \dontrun{drones <- ops_fetch_biblio(query = "drones", type = "ta", service = "biblio", start = 1990, end = 2015, timer = 10, key = YOURKEYHERE ,secret = YOURSECRET HERE )}
+ops_fetch_biblio <- function(query, type, service, start, end, timer, key, secret){
+  ops_urls(query, type, start, end, key= key, secret = secret) %>%
+    ops_iterate(service, timer, key = key, secret= secret) %>%
+    ops_biblio(key = key, secret= secret)
 } #doesnt work on say 1990,1991 on three results. Weird.
