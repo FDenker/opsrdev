@@ -1,6 +1,8 @@
 #' @title Obtain a set of urls from ops_publications
 #' @description Used in conjunction with ops_iterate. Given a set of urls convert to a get request to retrieve the data from OPS. When the response is received extract the content to create a list.
 #' @param url . A single url or vector of urls
+#' @param key Alphanumeric provided by OPS (quoted).
+#' @param secret Alphanumeric secret provided by OPS (quoted).
 #' @return A list.
 #' @importFrom httr GET
 #' @importFrom httr content_type
