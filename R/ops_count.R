@@ -4,6 +4,8 @@
 #' @param type Patent document sections. title = "ti", title and abstract = "ta", biblio(front page) = "biblio", default = biblio (NULL)
 #' @param start use unquoted YYYYMMDD or YYYY
 #' @param end as for start
+#' @param key Alphanumeric provided by OPS (quoted).
+#' @param secret Alphanumeric secret provided by OPS (quoted)
 #' @details The function presently retrieves data only on the publication date, not application or priority dates.
 #' @return numeric count of results in OPS by search type (document sections) and date ranges.
 #' @examples
@@ -15,8 +17,12 @@
 #' @importFrom httr content_type
 #' @importFrom httr accept
 #' @importFrom httr content
-ops_count <- function(query = "", type = "NULL", start = NULL, end = NULL) {
-  baseurl <- "http://ops.epo.org/3.1/rest-services/published-data/search/?q="
+ops_count <- function(query = "", type = "NULL", start = NULL, end = NULL, key = key, secret = secret) {
+  access_token <- ops_auth(key = key, secret = secret)
+  head_post <- c(paste("Bearer", access_token ),"application/json", "text/plain")
+  names(head_post) <- c("Authorization", "Accept", "Content-Type" )
+
+  baseurl <- "http://ops.epo.org/3.2/rest-services/published-data/search/?q="
   #what else could this count?
   #needs publishedurl and any other urls for the sources
   if(type == "ti") {
@@ -34,16 +40,20 @@ ops_count <- function(query = "", type = "NULL", start = NULL, end = NULL) {
   if(is.numeric(start) | is.numeric(end)){
     within <- " and pd within "
     dates <- paste0("%22", start, "%20", end, "%22")
-    myquery <- httr::GET(paste0(baseurl, query, RCurl::curlEscape(within), dates), httr::content_type("plain/text"), httr::accept("application/json"))
+    myquery <- httr::GET(paste0(baseurl, query, RCurl::curlEscape(within), dates), httr::add_headers(head_post))
     content <- httr::content(myquery)
     qtotal <- content$`ops:world-patent-data`$`ops:biblio-search`[[1]]
     qtotal <- as.numeric(qtotal)
     print(qtotal)
   } else {
-    myquery <- httr::GET(paste0(baseurl, query), httr::content_type("plain/text"), httr::accept("application/json"))
+    access_token <- ops_auth(key = key, secret = secret)
+    head_post <- c(paste("Bearer", access_token ),"application/json", "text/plain")
+    names(head_post) <- c("Authorization", "Accept", "Content-Type" )
+    myquery <- httr::GET(paste0(baseurl, query), httr::add_headers(head_post))
     content <- httr::content(myquery)
     qtotal <- content$`ops:world-patent-data`$`ops:biblio-search`[[1]]
     qtotal <- as.numeric(qtotal)
     print(qtotal)
   }
 }
+
