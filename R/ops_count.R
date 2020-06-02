@@ -46,9 +46,6 @@ ops_count <- function(query = "", type = "NULL", start = NULL, end = NULL, key =
     qtotal <- as.numeric(qtotal)
     print(qtotal)
   } else {
-    access_token <- ops_auth(key = key, secret = secret)
-    head_post <- c(paste("Bearer", access_token ),"application/json", "text/plain")
-    names(head_post) <- c("Authorization", "Accept", "Content-Type" )
     myquery <- httr::GET(paste0(baseurl, query), httr::add_headers(head_post))
     content <- httr::content(myquery)
     qtotal <- content$`ops:world-patent-data`$`ops:biblio-search`[[1]]

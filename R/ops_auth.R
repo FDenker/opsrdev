@@ -20,6 +20,6 @@ ops_auth <- function(key, secret){
     auth <- httr::POST(url = "https://ops.epo.org/3.2/auth/accesstoken", httr::add_headers(heads),
     body = "grant_type=client_credentials")
     content_auth <- content(auth, encoding = "UTF-8")
-    print(auth$status)
+    print(paste0("Status: ",auth$status))
     return(content_auth$access_token)
 }
